@@ -46,7 +46,9 @@ jobs:
     environment:
       name: 'testing'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+    permissions:
+      id-token: write #This is required for requesting the JWT
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -56,6 +58,13 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
       
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9FDBB65F1D514D92AD6D65ED4D112F92 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_05923416E2264326BAF492804D186325 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7682570C1BC446C0B587464ABDDF9814 }}
+
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
@@ -63,4 +72,4 @@ jobs:
           app-name: 'networknuts'
           slot-name: 'testing'
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BFEF821CD1734D6A922D6AD3D0CC453D }}
+          
